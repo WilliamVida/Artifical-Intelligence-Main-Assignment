@@ -1,0 +1,54 @@
+// Declare function.
+FUNCTION_BLOCK damageDealt
+	// Input variables for the health and distance from the centre for the characters.
+	VAR_INPUT
+		health : REAL;
+		distance : REAL;
+	END_VAR
+
+	// Output is damage which is inflicted to the enemy.
+	VAR_OUTPUT
+		damage : REAL;
+	END_VAR
+
+	// Linguistic variables for the health of the enemy.
+	FUZZIFY health
+		TERM low := (0,1) (5,1) (35,0);
+		TERM medium := trian 30 50 80;
+		TERM high := (75,0) (80,1) (100,1);
+	END_FUZZIFY
+
+	// Linguistic variables for the distance from the centre for the enemy.
+	FUZZIFY distance
+		TERM close := (0,1) (5,1) (12.5,0);
+		TERM medium := (7.5,0) (15,1) (22.5,0);
+		TERM far := (17.5,0) (25,1) (30,1);
+	END_FUZZIFY
+
+	// The damage inflicted on the characters.
+	DEFUZZIFY damage
+		TERM low := (0,1) (1,1) (1.5,0);
+		TERM moderate := trian 1 6 7.5;
+		TERM high := (7,0) (8,1) (10,1);
+		METHOD : COG;
+		DEFAULT := 0;
+	END_DEFUZZIFY
+
+	// Fuzzy rules.
+	RULEBLOCK No1
+		AND : MIN;
+		ACT : MIN;
+		ACCU : MAX;
+
+		RULE 1 : IF health IS low AND distance IS close THEN damage IS moderate;
+		RULE 2 : IF health IS low AND distance IS medium THEN damage IS moderate;
+		RULE 3 : IF health IS low AND distance IS far THEN damage IS high;
+		RULE 4 : IF health IS medium AND distance IS close THEN damage IS low;
+		RULE 5 : IF health IS medium AND distance IS medium THEN damage IS moderate;
+		RULE 6 : IF health IS medium AND distance IS far THEN damage IS moderate;
+		RULE 7 : IF health IS high AND distance IS close THEN damage IS low;
+		RULE 8 : IF health IS high AND distance IS medium THEN damage IS low;
+		RULE 9 : IF health IS high AND distance IS far THEN damage IS moderate;
+	END_RULEBLOCK
+
+END_FUNCTION_BLOCK
